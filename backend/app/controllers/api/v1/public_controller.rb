@@ -1,7 +1,7 @@
 module Api
   module V1
     class PublicController < ApplicationController
-      skip_before_action :authenticate_user!, only: [:check_qualification]
+      skip_before_action :authenticate_user!, only: [ :check_qualification ]
 
       def check_qualification
         dob = Date.parse(params[:dob]) rescue nil

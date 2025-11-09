@@ -20,9 +20,9 @@ module Api
 
         message = if historic
                     "Historic import started for #{swimmer.full_name}. This will take 2-5 minutes due to rate limiting."
-                  else
+        else
                     "Import started for #{swimmer.full_name}. This may take a few moments."
-                  end
+        end
 
         render json: { message: message }
       end

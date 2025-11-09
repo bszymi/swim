@@ -1,7 +1,7 @@
 module Api
   module V1
     class AuthController < ApplicationController
-      skip_before_action :authenticate_user!, only: [:login, :signup]
+      skip_before_action :authenticate_user!, only: [ :login, :signup ]
 
       def signup
         user = User.new(signup_params)
@@ -60,7 +60,7 @@ module Api
 
       def encode_token(user_id)
         payload = { user_id: user_id, exp: 24.hours.from_now.to_i }
-        JWT.encode(payload, Rails.application.credentials.secret_key_base || ENV['SECRET_KEY_BASE'])
+        JWT.encode(payload, Rails.application.credentials.secret_key_base || ENV["SECRET_KEY_BASE"])
       end
     end
   end
