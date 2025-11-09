@@ -80,12 +80,13 @@ export const SwimmerDetailPage: React.FC = () => {
   };
 
   const handleImportSwimmingData = async () => {
+    if (!swimmer.id) return;
     try {
       // Import PBs first (quick)
-      await importPerformances.mutateAsync({ swimmerId: se_id || '', historic: false });
+      await importPerformances.mutateAsync({ swimmerId: swimmer.id, historic: false });
 
       // Then import historic data (slow, in background)
-      await importPerformances.mutateAsync({ swimmerId: se_id || '', historic: true });
+      await importPerformances.mutateAsync({ swimmerId: swimmer.id, historic: true });
     } catch (err) {
       console.error('Failed to import performances:', err);
     }
@@ -351,9 +352,9 @@ export const SwimmerDetailPage: React.FC = () => {
                       />
                       <Tooltip
                         labelFormatter={(timestamp) => new Date(timestamp).toLocaleDateString('en-GB')}
-                        formatter={(value: number, _name: string, props: { payload: { isPB?: boolean } }) => [
+                        formatter={(value: number, _name: string, props: { payload?: { isPB?: boolean } }) => [
                           formatTime(value),
-                          props.payload.isPB ? 'Time (PB!)' : 'Time'
+                          props.payload?.isPB ? 'Time (PB!)' : 'Time'
                         ]}
                         contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '8px', color: '#fff' }}
                       />

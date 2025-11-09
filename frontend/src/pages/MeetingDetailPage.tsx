@@ -45,6 +45,7 @@ export const MeetingDetailPage: React.FC = () => {
   }
 
   const { meeting, standards_matrix } = data;
+  const standardsMatrix = standards_matrix as Record<string, GenderData>;
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -72,7 +73,7 @@ export const MeetingDetailPage: React.FC = () => {
       <Card>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Qualification Standards</h2>
 
-        {Object.entries(standards_matrix).map(([gender, genderData]: [string, GenderData]) => (
+        {Object.entries(standardsMatrix).map(([gender, genderData]) => (
           <div key={gender} className="mb-8">
             <h3 className="text-md font-semibold text-gray-800 mb-3">
               {gender === 'M' ? 'Male' : 'Female'}

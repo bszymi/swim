@@ -6,8 +6,8 @@ import { Button } from '../components/common/Button';
 import { Loading } from '../components/common/Loading';
 import { formatDate } from '../utils/date.utils';
 import { formatTime } from '../utils/time.utils';
-import { Swimmer, Performance } from '../types/swimmer.types';
-import { Meeting } from '../types/meeting.types';
+import type { Swimmer, Performance } from '../types/swimmer.types';
+import type { Meeting } from '../types/meeting.types';
 
 export const DashboardPage: React.FC = () => {
   const { data, isLoading, error } = useDashboard();
