@@ -1,365 +1,191 @@
-# Swim Application
+# Swim Meet Manager
 
-A modern swimming performance tracking application with React frontend and Rails API backend.
+A modern swim meet qualification tracking application with AI-powered PDF parsing and automated performance imports.
 
-## Architecture
+## Features
 
-```
-swim/
-├── frontend/          # React + TypeScript + Vite
-├── backend/           # Rails 8.1 API
-├── docker-compose.yml # Docker orchestration
-└── README.md         # This file
-```
+- 🤖 **AI PDF Parsing** - Upload meet qualification PDFs and automatically extract standards using Claude AI
+- 🏊 **Performance Tracking** - Import swimmer times from Swimming Results website
+- 📊 **Visual Analytics** - Interactive charts showing performance progression over time
+- ✅ **Qualification Checking** - Automatically check if swimmers meet qualification standards
+- 🔄 **Auto-sync** - Automatic imports of both personal bests and historic performances
+- 📱 **Responsive Design** - Works on desktop and mobile devices
 
-### Technology Stack
+## Tech Stack
 
-**Frontend:**
-- React 18 with TypeScript
-- Vite for build tooling
-- TailwindCSS for styling
-- React Router for navigation
-- Axios for API calls
-- React Query for data fetching and caching
-- Date-fns for date manipulation
-
-**Backend:**
-- Rails 8.1 (API mode)
-- PostgreSQL 16
-- Redis for caching and Sidekiq
-- Devise + JWT for authentication
+### Backend
+- Ruby on Rails 8.1 (API mode)
+- PostgreSQL database
 - Sidekiq for background jobs
+- Redis for job queue
 - Anthropic Claude API for PDF parsing
 
-## Getting Started
+### Frontend
+- React 18 with TypeScript
+- Vite build tool
+- TailwindCSS v4 for styling
+- React Query for data fetching
+- Recharts for visualization
 
-### Prerequisites
+## Prerequisites
 
 - Docker and Docker Compose
-- (Optional) Node.js 20+ and Ruby 3.3+ for local development
+- (Optional) Anthropic API key for PDF parsing
 
-### Quick Start with Docker
+## Quick Start
 
-1. **Clone and navigate to the project:**
+1. **Clone the repository**
    ```bash
+   git clone <your-repo-url>
    cd swim
    ```
 
-2. **Set up environment variables:**
-
-   Backend:
+2. **Set up environment variables**
    ```bash
-   cd backend
-   cp .env.example .env
-   # Edit .env and add your ANTHROPIC_API_KEY
+   cp backend/.env.example backend/.env
+   ```
+   
+   Edit `backend/.env` and add your Anthropic API key (optional, only needed for PDF uploads):
+   ```
+   ANTHROPIC_API_KEY=your_api_key_here
    ```
 
-   Frontend:
+3. **Start the application**
    ```bash
-   cd ../frontend
-   cp .env.example .env
+   docker compose up -d
    ```
 
-3. **Start all services:**
+4. **Set up the database**
    ```bash
-   cd ..
-   docker-compose up --build
+   docker compose exec backend rails db:create db:migrate
    ```
 
-4. **Access the application:**
+5. **Access the application**
    - Frontend: http://localhost:5173
-   - Backend API: http://localhost:3000/api/v1
-   - Database: localhost:5432
+   - Backend API: http://localhost:3000
+   - Sidekiq Web UI: http://localhost:3000/sidekiq
 
-### Initial Setup
+## Usage
 
-After starting the containers for the first time:
+### Adding Swimmers
 
-```bash
-# Create and migrate database (happens automatically in docker-compose)
-# But if needed manually:
-docker-compose exec backend rails db:create db:migrate
+1. Navigate to **Swimmers** → **Add Swimmer**
+2. Enter swimmer details including Swimming England membership number
+3. Click **Import Swimming Data** to automatically fetch their performance history
 
-# (Optional) Seed database
-docker-compose exec backend rails db:seed
-```
+### Uploading Meeting PDFs
+
+1. Navigate to **Meetings** → **Add Meeting**
+2. Upload a PDF containing qualification standards
+3. The AI will automatically parse the document and extract:
+   - Meet name and season
+   - Pool type (LC/SC)
+   - Qualification window dates
+   - All qualification standards
+
+### Viewing Performance History
+
+- Click on any swimmer's event to view:
+  - Interactive performance graph showing progression over time
+  - Full history table with dates and meet names
+  - Personal best highlighted in gold
 
 ## Development
 
-### Local Development (without Docker)
+### Project Structure
 
-**Backend:**
-```bash
-cd backend
-
-# Install dependencies
-bundle install
-
-# Setup database
-rails db:create db:migrate
-
-# Start Rails server
-rails server -p 3000
-
-# In another terminal, start Sidekiq
-bundle exec sidekiq
 ```
-
-**Frontend:**
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start dev server
-npm run dev
+swim/
+├── backend/          # Rails API
+│   ├── app/
+│   │   ├── controllers/  # API endpoints
+│   │   ├── jobs/        # Background jobs
+│   │   ├── models/      # Database models
+│   │   └── services/    # Business logic
+│   └── config/
+├── frontend/         # React app
+│   ├── src/
+│   │   ├── components/  # Reusable UI components
+│   │   ├── pages/       # Page components
+│   │   ├── hooks/       # Custom React hooks
+│   │   └── services/    # API client
+└── docker-compose.yml
 ```
 
 ### Running Tests
 
-**Backend:**
 ```bash
-docker-compose exec backend bundle exec rspec
+# Backend tests
+docker compose exec backend rails test
+
+# Frontend tests
+docker compose exec frontend npm test
 ```
 
-**Frontend:**
+### Database Backup
+
 ```bash
-docker-compose exec frontend npm test
+# Create backup
+docker compose exec db pg_dump -U postgres swim_development > backups/backup_$(date +%Y%m%d).sql
+
+# Restore backup
+docker compose exec -T db psql -U postgres swim_development < backups/backup_20251109.sql
 ```
-
-## Application Features
-
-### Core Features
-
-1. **Swimmer Management**
-   - Add/edit/delete swimmers
-   - Track multiple swimmers per user
-   - Import performance data from Swimming England
-
-2. **Performance Tracking**
-   - Import times from swimmingresults.org
-   - Automatic LC/SC conversion
-   - Performance history visualization
-   - Personal bests tracking
-
-3. **Meeting Standards**
-   - Upload PDF documents (AI-powered parsing)
-   - Manage qualifying times
-   - Age group calculations
-   - Multiple pool types (LC/SC)
-
-4. **Comparison & Qualification**
-   - Compare swimmers against meet standards
-   - Visual qualification indicators
-   - Time conversion based on meet rules
-   - Public qualification checker
 
 ## API Documentation
 
-### Authentication Endpoints
+### Authentication
+All API endpoints require JWT authentication except for public endpoints.
 
-```
-POST   /api/v1/signup          # Register new user
-POST   /api/v1/login           # Login
-DELETE /api/v1/logout          # Logout
-```
-
-### Resource Endpoints
-
-```
-GET    /api/v1/dashboard                                    # Dashboard data
-GET    /api/v1/swimmers                                     # List swimmers
-GET    /api/v1/swimmers/:id                                 # Swimmer details
-POST   /api/v1/swimmers                                     # Create swimmer
-PATCH  /api/v1/swimmers/:id                                 # Update swimmer
-DELETE /api/v1/swimmers/:id                                 # Delete swimmer
-
-GET    /api/v1/swimmers/:id/performances/:stroke/:distance/:course  # Performance history
-POST   /api/v1/performances/import                          # Import performances
-
-GET    /api/v1/meetings                                     # List meetings
-GET    /api/v1/meetings/:id                                 # Meeting details
-POST   /api/v1/meetings                                     # Upload PDF
-GET    /api/v1/meetings/:id/status                          # PDF parsing status
-GET    /api/v1/meetings/:id/review                          # Review parsed data
-POST   /api/v1/meetings/:id/confirm                         # Confirm meeting
-GET    /api/v1/meetings/:id/compare                         # Compare swimmers
-DELETE /api/v1/meetings/:id                                 # Delete meeting
-
-POST   /api/v1/check_qualification                          # Public qualification check
-```
-
-## Frontend Component Architecture
-
-### Proposed Component Structure
-
-```
-src/
-├── components/
-│   ├── common/              # Reusable UI components
-│   │   ├── Button.tsx
-│   │   ├── Card.tsx
-│   │   ├── Modal.tsx
-│   │   ├── Table.tsx
-│   │   ├── Form/
-│   │   │   ├── Input.tsx
-│   │   │   ├── Select.tsx
-│   │   │   └── DatePicker.tsx
-│   │   └── Loading.tsx
-│   │
-│   ├── layout/              # Layout components
-│   │   ├── Header.tsx
-│   │   ├── Sidebar.tsx
-│   │   ├── Footer.tsx
-│   │   └── MainLayout.tsx
-│   │
-│   ├── swimmers/            # Swimmer-related components
-│   │   ├── SwimmerList.tsx
-│   │   ├── SwimmerCard.tsx
-│   │   ├── SwimmerForm.tsx
-│   │   ├── SwimmerDetails.tsx
-│   │   └── PersonalBests.tsx
-│   │
-│   ├── performances/        # Performance components
-│   │   ├── PerformanceTable.tsx
-│   │   ├── PerformanceHistory.tsx
-│   │   ├── ImportForm.tsx
-│   │   └── TimeConverter.tsx
-│   │
-│   ├── meetings/            # Meeting components
-│   │   ├── MeetingList.tsx
-│   │   ├── MeetingCard.tsx
-│   │   ├── MeetingDetails.tsx
-│   │   ├── StandardsMatrix.tsx
-│   │   ├── PDFUpload.tsx
-│   │   ├── ReviewParsedData.tsx
-│   │   └── ComparisonView.tsx
-│   │
-│   ├── dashboard/           # Dashboard components
-│   │   ├── StatsCard.tsx
-│   │   ├── RecentPerformances.tsx
-│   │   └── QuickActions.tsx
-│   │
-│   └── auth/               # Authentication components
-│       ├── LoginForm.tsx
-│       ├── SignupForm.tsx
-│       └── ProtectedRoute.tsx
-│
-├── pages/                  # Page components
-│   ├── HomePage.tsx
-│   ├── LoginPage.tsx
-│   ├── SignupPage.tsx
-│   ├── DashboardPage.tsx
-│   ├── SwimmersPage.tsx
-│   ├── SwimmerDetailPage.tsx
-│   ├── MeetingsPage.tsx
-│   ├── MeetingDetailPage.tsx
-│   └── ComparisonPage.tsx
-│
-├── services/               # API service layer
-│   ├── api.ts             # Axios instance with interceptors
-│   ├── auth.service.ts
-│   ├── swimmers.service.ts
-│   ├── performances.service.ts
-│   └── meetings.service.ts
-│
-├── hooks/                  # Custom React hooks
-│   ├── useAuth.ts
-│   ├── useSwimmers.ts
-│   ├── usePerformances.ts
-│   └── useMeetings.ts
-│
-├── contexts/              # React contexts
-│   └── AuthContext.tsx
-│
-├── types/                 # TypeScript types
-│   ├── swimmer.types.ts
-│   ├── performance.types.ts
-│   ├── meeting.types.ts
-│   └── api.types.ts
-│
-├── utils/                 # Utility functions
-│   ├── time.utils.ts     # Time formatting/parsing
-│   ├── date.utils.ts     # Date calculations
-│   └── validation.ts     # Form validation
-│
-├── App.tsx               # Main app component
-└── main.tsx             # App entry point
-```
-
-## Database Schema
-
-Key models from the original application have been copied:
-
-- **User** - Authentication and user management
-- **Swimmer** - Swimmer profiles
-- **Performance** - Swimming times/results
-- **Meeting** - Competition meets
-- **MeetingStandard** - Qualifying times
-- **MeetRule** - Time conversion rules
-- **ParsedMeetDatum** - PDF parsing results
-
-## Background Jobs
-
-- **ImportPerformancesJob** - Scrapes times from swimmingresults.org
-- **ParseMeetPdfJob** - Parses PDF with Claude AI
-- **ProcessMeetResponseJob** - Processes AI response
-
-## Services
-
-All business logic services from the original app:
-- **SwimmingResultsScraper** - Web scraping
-- **TimeConverter** - LC/SC conversions
-- **EligibilityService** - Qualification checking
-- **PublicQualificationChecker** - Public checker
-
-## Environment Variables
-
-### Backend (.env)
-
+**Login**
 ```bash
-DATABASE_HOST=db
-DATABASE_PORT=5432
-DATABASE_USERNAME=postgres
-DATABASE_PASSWORD=postgres
-REDIS_URL=redis://redis:6379/0
-FRONTEND_URL=http://localhost:5173
-ANTHROPIC_API_KEY=your_api_key
-SECRET_KEY_BASE=generated_secret
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password"
+}
 ```
 
-### Frontend (.env)
+### Swimmers
+- `GET /api/v1/swimmers` - List all swimmers
+- `GET /api/v1/swimmers/:se_id` - Get swimmer details
+- `POST /api/v1/swimmers` - Create swimmer
+- `POST /api/v1/swimmers/:se_id/import_performances` - Import times
 
-```bash
-VITE_API_URL=http://localhost:3000/api/v1
-```
+### Meetings
+- `GET /api/v1/meetings` - List all meetings
+- `GET /api/v1/meetings/:id` - Get meeting details
+- `POST /api/v1/meetings` - Upload meeting PDF
+- `GET /api/v1/meetings/:id/compare` - Compare swimmers against standards
 
-## Docker Services
+## Configuration
 
-- **db** - PostgreSQL 16 database
-- **redis** - Redis for caching and Sidekiq
-- **backend** - Rails API server (port 3000)
-- **sidekiq** - Background job processor
-- **frontend** - React dev server (port 5173)
+### Environment Variables
 
-## Deployment
-
-(To be added based on your deployment strategy)
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_HOST` | PostgreSQL host | `db` |
+| `DATABASE_PORT` | PostgreSQL port | `5432` |
+| `REDIS_URL` | Redis connection URL | `redis://redis:6379/0` |
+| `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:5173` |
+| `ANTHROPIC_API_KEY` | Claude API key for PDF parsing | - |
 
 ## Contributing
 
-(To be added)
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-(To be added)
+This project is open source and available under the MIT License.
 
-## Notes
+## Acknowledgments
 
-This application is a complete rewrite of the swim-ruby monolith application, separating concerns into:
-- A stateless Rails API backend
-- A modern React SPA frontend
-- Containerized services for easy deployment
-
-The backend preserves all business logic, models, and services from the original application while exposing them through a RESTful JSON API.
+- Swimming Results website for performance data
+- Anthropic Claude for AI PDF parsing
+- Swimming England for qualification standards
