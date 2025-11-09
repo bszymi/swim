@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { validateEmail, validatePassword } from '../../utils/validation';
@@ -19,7 +19,7 @@ export const SignupForm: React.FC = () => {
     setErrors({});
 
     // Validation
-    const newErrors: any = {};
+    const newErrors: { email?: string; password?: string; passwordConfirmation?: string } = {};
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (!validateEmail(email)) {
@@ -44,8 +44,9 @@ export const SignupForm: React.FC = () => {
     try {
       await signup({ email, password, password_confirmation: passwordConfirmation });
       navigate('/dashboard');
-    } catch (error: any) {
-      setErrors({ general: error.response?.data?.errors?.join(', ') || 'An error occurred during signup' });
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { errors?: string[] } } };
+      setErrors({ general: axiosError.response?.data?.errors?.join(', ') || 'An error occurred during signup' });
     } finally {
       setLoading(false);
     }

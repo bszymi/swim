@@ -6,6 +6,8 @@ import { Button } from '../components/common/Button';
 import { Loading } from '../components/common/Loading';
 import { formatDate } from '../utils/date.utils';
 import { formatTime } from '../utils/time.utils';
+import { Swimmer, Performance } from '../types/swimmer.types';
+import { Meeting } from '../types/meeting.types';
 
 export const DashboardPage: React.FC = () => {
   const { data, isLoading, error } = useDashboard();
@@ -68,7 +70,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {swimmers.slice(0, 5).map((swimmer: any) => (
+              {swimmers.slice(0, 5).map((swimmer: Swimmer) => (
                 <Link
                   key={swimmer.id}
                   to={`/swimmers/${swimmer.se_membership_id}`}
@@ -99,7 +101,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {recentPerformances.slice(0, 5).map((perf: any, index: number) => (
+              {recentPerformances.slice(0, 5).map((perf: Performance, index: number) => (
                 <div key={index} className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex justify-between items-start">
                     <div>
@@ -124,7 +126,7 @@ export const DashboardPage: React.FC = () => {
       {meetings.length > 0 && (
         <Card title="Upcoming Meetings" className="mt-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {meetings.slice(0, 6).map((meeting: any) => (
+            {meetings.slice(0, 6).map((meeting: Meeting) => (
               <Link
                 key={meeting.id}
                 to={`/meetings/${meeting.id}`}
