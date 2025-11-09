@@ -28,12 +28,12 @@ class PublicQualificationChecker
     results.sort_by do |r|
       status_priority = if r[:qualified]
                           0
-                        elsif r[:consideration]
+      elsif r[:consideration]
                           1
-                        else
+      else
                           2
-                        end
-      [status_priority, r[:delta] || Float::INFINITY]
+      end
+      [ status_priority, r[:delta] || Float::INFINITY ]
     end
   end
 
@@ -70,25 +70,25 @@ class PublicQualificationChecker
     qualified = required_time && swimmer_time <= required_time
     consideration = if consideration_time && required_time
                       swimmer_time > required_time && swimmer_time <= consideration_time
-                    elsif consideration_time && !required_time
+    elsif consideration_time && !required_time
                       swimmer_time <= consideration_time
-                    else
+    else
                       false
-                    end
+    end
 
     delta = required_time ? (swimmer_time - required_time).round(2) : nil
 
     # Format age group display
     age_group = if qualifying_standard
                   format_age_group(qualifying_standard.age_min, qualifying_standard.age_max)
-                elsif consideration_standard
+    elsif consideration_standard
                   format_age_group(consideration_standard.age_min, consideration_standard.age_max)
-                end
+    end
 
     # Generate conversion note if applicable
     conversion_note = if @course_type != required_pool && %w[LC SC].include?(required_pool)
                         "Time converted from #{@course_type} to #{required_pool} (#{TimeParser.to_formatted(@time_seconds)} → #{TimeParser.to_formatted(swimmer_time)})"
-                      end
+    end
 
     {
       meet_name: meeting.name,

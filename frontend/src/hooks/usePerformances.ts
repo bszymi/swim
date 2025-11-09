@@ -15,15 +15,15 @@ export const useImportPerformances = () => {
 };
 
 export const usePerformanceHistory = (
-  swimmerId: number,
+  seId: string,
   stroke: string,
   distanceM: number,
   courseType: string,
   enabled: boolean = true
 ) => {
   return useQuery({
-    queryKey: ['performance-history', swimmerId, stroke, distanceM, courseType],
-    queryFn: () => performancesService.getHistory(swimmerId, stroke, distanceM, courseType),
-    enabled: enabled && !!swimmerId && !!stroke && !!distanceM && !!courseType,
+    queryKey: ['performance-history', seId, stroke, distanceM, courseType],
+    queryFn: () => performancesService.getHistory(seId, stroke, distanceM, courseType),
+    enabled: enabled && !!seId && !!stroke && !!distanceM && !!courseType,
   });
 };

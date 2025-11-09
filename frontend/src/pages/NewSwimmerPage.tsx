@@ -17,18 +17,18 @@ export const NewSwimmerPage: React.FC = () => {
       const newSwimmer = await createSwimmer.mutateAsync(data);
 
       // If swimmer has SE membership ID, automatically import performances
-      if (newSwimmer.se_membership_id) {
+      if (newSwimmer.se_membership_id && newSwimmer.id) {
         setImportingData(true);
         try {
           // First import PBs (quick)
           await importPerformances.mutateAsync({
-            swimmerId: newSwimmer.se_membership_id,
+            swimmerId: newSwimmer.id,
             historic: false
           });
 
           // Then import historic data (slow, but in background)
           await importPerformances.mutateAsync({
-            swimmerId: newSwimmer.se_membership_id,
+            swimmerId: newSwimmer.id,
             historic: true
           });
         } catch (importError) {

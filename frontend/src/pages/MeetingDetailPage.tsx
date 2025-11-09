@@ -5,6 +5,18 @@ import { Button } from '../components/common/Button';
 import { Loading } from '../components/common/Loading';
 import { meetingsService } from '../services/meetings.service';
 
+interface EventStandard {
+  stroke: string;
+  distance: number;
+  course: string;
+  times_by_age: Record<string, { qualifying_time?: string }>;
+}
+
+interface GenderData {
+  ages: string[];
+  events: EventStandard[];
+}
+
 export const MeetingDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -33,6 +45,7 @@ export const MeetingDetailPage: React.FC = () => {
   }
 
   const { meeting, standards_matrix } = data;
+  const standardsMatrix = standards_matrix as Record<string, GenderData>;
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -60,7 +73,7 @@ export const MeetingDetailPage: React.FC = () => {
       <Card>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Qualification Standards</h2>
 
-        {Object.entries(standards_matrix).map(([gender, genderData]: [string, any]) => (
+        {Object.entries(standardsMatrix).map(([gender, genderData]) => (
           <div key={gender} className="mb-8">
             <h3 className="text-md font-semibold text-gray-800 mb-3">
               {gender === 'M' ? 'Male' : 'Female'}
@@ -79,7 +92,7 @@ export const MeetingDetailPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {genderData.events.map((event: any, idx: number) => (
+                  {genderData.events.map((event: EventStandard, idx: number) => (
                     <tr key={idx}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {event.distance}m {event.stroke} ({event.course})

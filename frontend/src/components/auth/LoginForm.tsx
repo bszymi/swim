@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { validateEmail } from '../../utils/validation';
@@ -18,7 +18,7 @@ export const LoginForm: React.FC = () => {
     setErrors({});
 
     // Validation
-    const newErrors: any = {};
+    const newErrors: { email?: string; password?: string } = {};
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (!validateEmail(email)) {
@@ -37,8 +37,9 @@ export const LoginForm: React.FC = () => {
     try {
       await login({ email, password });
       navigate('/dashboard');
-    } catch (error: any) {
-      setErrors({ general: error.response?.data?.error || 'Invalid email or password' });
+    } catch (error) {
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      setErrors({ general: axiosError.response?.data?.error || 'Invalid email or password' });
     } finally {
       setLoading(false);
     }

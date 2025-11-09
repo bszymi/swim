@@ -1,5 +1,5 @@
 import api from './api';
-import type { Swimmer } from '../types/swimmer.types';
+import type { Swimmer, Performance } from '../types/swimmer.types';
 
 export const swimmersService = {
   async getAll(): Promise<Swimmer[]> {
@@ -7,7 +7,7 @@ export const swimmersService = {
     return response.data;
   },
 
-  async getById(seId: string): Promise<{ swimmer: Swimmer; lc_performances: any[]; sc_performances: any[] }> {
+  async getById(seId: string): Promise<{ swimmer: Swimmer; lc_performances: Performance[]; sc_performances: Performance[] }> {
     const response = await api.get(`/swimmers/${seId}`);
     return response.data;
   },

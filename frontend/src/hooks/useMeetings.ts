@@ -34,7 +34,7 @@ export const useMeetingStatus = (id: number, enabled: boolean = true) => {
     enabled: enabled && !!id,
     refetchInterval: (query) => {
       // Poll every 3 seconds if status is pending or processing
-      const data = query.state.data as any;
+      const data = query.state.data as { status?: string } | undefined;
       if (data?.status === 'pending' || data?.status === 'processing') {
         return 3000;
       }

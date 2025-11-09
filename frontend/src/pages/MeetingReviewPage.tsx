@@ -6,6 +6,15 @@ import { useMeetingStatus, useConfirmMeeting } from '../hooks/useMeetings';
 import { useQuery } from '@tanstack/react-query';
 import { meetingsService } from '../services/meetings.service';
 
+interface ParsedStandard {
+  stroke: string;
+  distance_m: number;
+  course_type: string;
+  age_group?: string;
+  sex: string;
+  qualifying_time: string;
+}
+
 export const MeetingReviewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -157,7 +166,7 @@ export const MeetingReviewPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {parsedData.standards?.slice(0, 10).map((standard: any, idx: number) => (
+                  {parsedData.standards?.slice(0, 10).map((standard: ParsedStandard, idx: number) => (
                     <tr key={idx}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {standard.stroke} {standard.distance_m}m ({standard.course_type})

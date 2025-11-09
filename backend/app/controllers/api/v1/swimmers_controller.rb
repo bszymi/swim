@@ -1,7 +1,7 @@
 module Api
   module V1
     class SwimmersController < BaseController
-      before_action :set_swimmer, only: [:show, :update, :destroy]
+      before_action :set_swimmer, only: [ :show, :update, :destroy ]
 
       def index
         swimmers = current_user.swimmers.includes(:performances).order(:first_name, :last_name)
@@ -13,15 +13,15 @@ module Api
 
         lc_performances = all_performances
                             .where(course_type: "LC")
-                            .group_by { |p| [p.stroke, p.distance_m] }
+                            .group_by { |p| [ p.stroke, p.distance_m ] }
                             .map { |key, perfs| perfs.min_by(&:time_seconds) }
-                            .sort_by { |p| [p.stroke, p.distance_m] }
+                            .sort_by { |p| [ p.stroke, p.distance_m ] }
 
         sc_performances = all_performances
                             .where(course_type: "SC")
-                            .group_by { |p| [p.stroke, p.distance_m] }
+                            .group_by { |p| [ p.stroke, p.distance_m ] }
                             .map { |key, perfs| perfs.min_by(&:time_seconds) }
-                            .sort_by { |p| [p.stroke, p.distance_m] }
+                            .sort_by { |p| [ p.stroke, p.distance_m ] }
 
         render json: {
           swimmer: @swimmer,

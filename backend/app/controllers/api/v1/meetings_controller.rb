@@ -1,7 +1,7 @@
 module Api
   module V1
     class MeetingsController < BaseController
-      before_action :set_meeting, only: [:show, :destroy, :swimmer_time_history, :download_pdf, :compare]
+      before_action :set_meeting, only: [ :show, :destroy, :swimmer_time_history, :download_pdf, :compare ]
 
       def index
         meetings = Meeting.all.order(created_at: :desc)
@@ -34,7 +34,7 @@ module Api
                   }
                 end
               }
-            end.sort_by { |e| [e[:stroke], e[:distance]] }
+            end.sort_by { |e| [ e[:stroke], e[:distance] ] }
           }
         end
 
@@ -64,7 +64,7 @@ module Api
           pdf_content_type: pdf_file.content_type
         )
 
-        parsed_record.update!(pdf_data: pdf_data.force_encoding('BINARY'))
+        parsed_record.update!(pdf_data: pdf_data.force_encoding("BINARY"))
         ParseMeetPdfJob.perform_later(parsed_record.id, pdf_data)
 
         render json: {
@@ -172,9 +172,9 @@ module Api
 
         selected_swimmer_ids = if params[:swimmer_ids].present?
                                   params[:swimmer_ids]
-                                else
+        else
                                   swimmers.pluck(:id).map(&:to_s)
-                                end
+        end
 
         if selected_swimmer_ids.any?
           selected_swimmers = current_user.swimmers.where(id: selected_swimmer_ids).order(:last_name, :first_name)
@@ -182,7 +182,7 @@ module Api
 
           comparison_data = {}
 
-          ["M", "F"].each do |gender|
+          [ "M", "F" ].each do |gender|
             gender_swimmers = selected_swimmers.select { |s| s.sex == gender }
             next if gender_swimmers.empty?
 
@@ -233,7 +233,7 @@ module Api
                 times_by_age: event_standards.index_by(&:age_group),
                 swimmer_data: swimmer_data
               }
-            end.sort_by { |e| [e[:stroke], e[:distance]] }
+            end.sort_by { |e| [ e[:stroke], e[:distance] ] }
 
             comparison_data[gender] = {
               ages: ages,
@@ -269,7 +269,7 @@ module Api
 
         history = performances.map do |perf|
           {
-            date: perf.date.strftime('%d %b %Y'),
+            date: perf.date.strftime("%d %b %Y"),
             meet_name: perf.meet_name,
             course_type: perf.course_type,
             time_seconds: perf.time_seconds,
@@ -292,8 +292,8 @@ module Api
         # PDF download logic
         send_data @meeting.pdf_document.download,
                   filename: @meeting.pdf_document.filename.to_s,
-                  type: 'application/pdf',
-                  disposition: 'attachment'
+                  type: "application/pdf",
+                  disposition: "attachment"
       end
 
       def destroy

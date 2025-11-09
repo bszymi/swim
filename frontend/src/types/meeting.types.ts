@@ -34,5 +34,23 @@ export interface ParsedMeetDatum {
   id: number;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   error_message?: string;
-  data?: any;
+  data?: {
+    meet_name?: string;
+    season?: string;
+    pool_required?: string;
+    window_start?: string;
+    window_end?: string;
+    age_calculation?: {
+      method?: string;
+      date?: string;
+    };
+    standards?: Array<{
+      stroke: string;
+      distance_m: number;
+      course_type: string;
+      age_group?: string;
+      sex: string;
+      qualifying_time: string;
+    }>;
+  };
 }
