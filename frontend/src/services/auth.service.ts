@@ -34,5 +34,15 @@ export const authService = {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  },
+
+  async requestPasswordReset(email: string): Promise<{ message: string }> {
+    const response = await api.post('/password_resets', { email });
+    return response.data;
+  },
+
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    const response = await api.put(`/password_resets/${token}`, { password });
+    return response.data;
   }
 };

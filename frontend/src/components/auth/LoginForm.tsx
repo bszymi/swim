@@ -77,6 +77,15 @@ export const LoginForm: React.FC = () => {
         Login
       </Button>
 
+      <div className="text-center">
+        <a
+          href="/forgot-password"
+          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+        >
+          Forgot your password?
+        </a>
+      </div>
+
       <p className="text-center text-sm text-gray-600">
         Don't have an account?{' '}
         <a href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">

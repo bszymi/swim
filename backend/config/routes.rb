@@ -11,6 +11,10 @@ Rails.application.routes.draw do
       delete "logout", to: "auth#logout"
       get "me", to: "auth#me"
 
+      # Password Reset
+      post "password_resets", to: "password_resets#create"
+      put "password_resets/:token", to: "password_resets#update"
+
       # Dashboard
       get "dashboard", to: "dashboard#index"
 
