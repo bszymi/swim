@@ -41,6 +41,22 @@ Rails.application.routes.draw do
         end
       end
 
+      # Live Meetings (upcoming swimming events)
+      resources :live_meetings, only: [:index, :show] do
+        collection do
+          get "today"
+          post "scrape"
+          post "refresh"
+        end
+      end
+
+      # Regions and Counties
+      resources :regions, only: [:index, :show] do
+        member do
+          get "counties"
+        end
+      end
+
       # Public qualification checker
       post "check_qualification", to: "public#check_qualification"
     end
