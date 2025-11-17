@@ -31,7 +31,7 @@ RSpec.describe "PasswordResets", type: :request do
         }.to change { ActionMailer::Base.deliveries.count }.by(1)
 
         mail = ActionMailer::Base.deliveries.last
-        expect(mail.to).to eq([user.email])
+        expect(mail.to).to eq([ user.email ])
         expect(mail.subject).to eq("Reset Your Password - Swim Meet Manager")
       end
     end
