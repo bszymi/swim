@@ -51,7 +51,7 @@ module Api
         end_date = params[:end_date]&.to_date || (Date.current + 7.days)
 
         begin
-          scraper = StreamingResultsMeetingScraper.new
+          scraper = SwimmingResultsMeetingScraper.new
           new_meetings = scraper.scrape_meetings(start_date, end_date)
 
           render json: {
@@ -66,7 +66,7 @@ module Api
 
       def refresh
         # Refresh upcoming meetings
-        scraper = StreamingResultsMeetingScraper.new
+        scraper = SwimmingResultsMeetingScraper.new
         updated_count = scraper.refresh_upcoming_meetings
 
         render json: {

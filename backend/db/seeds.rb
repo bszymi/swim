@@ -8,54 +8,49 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-# UK Swimming Regions and Counties
-puts "Seeding UK Swimming Regions and Counties..."
+# Swim England Regions and Counties (2024-2025)
+puts "Seeding Swim England Regions and Counties..."
 
 regions_data = {
-  "East Region" => {
+  "East" => {
     code: "EAST",
     description: "Swim England East Region",
     counties: ["Bedfordshire", "Cambridgeshire", "Essex", "Hertfordshire", "Norfolk", "Suffolk"]
   },
-  "East Midlands Region" => {
+  "East Midlands" => {
     code: "EMID",
     description: "Swim England East Midlands Region",
-    counties: ["Derbyshire", "Leicestershire", "Lincolnshire", "Northamptonshire", "Nottinghamshire", "Rutland"]
+    counties: ["Derbyshire", "Leicestershire", "Lincolnshire", "Northamptonshire", "Nottinghamshire"]
   },
-  "London Region" => {
+  "London" => {
     code: "LOND",
     description: "Swim England London Region",
     counties: ["Greater London"]
   },
-  "North East Region" => {
+  "North East" => {
     code: "NE",
     description: "Swim England North East Region",
-    counties: ["County Durham", "Northumberland", "Tees Valley", "Tyne and Wear"]
+    counties: ["County Durham", "North Yorkshire", "North & North East Lincolnshire", "Northumberland", "Teesside", "Yorkshire"]
   },
-  "North West Region" => {
+  "North West" => {
     code: "NW",
     description: "Swim England North West Region",
-    counties: ["Cheshire", "Cumbria", "Greater Manchester", "Lancashire", "Merseyside"]
+    counties: ["Cheshire", "Cumbria", "Lancashire"]
   },
-  "South East Region" => {
+  "South East" => {
     code: "SE",
     description: "Swim England South East Region",
-    counties: ["Berkshire", "Buckinghamshire", "East Sussex", "Hampshire", "Isle of Wight", "Kent", "Oxfordshire", "Surrey", "West Sussex"]
+    counties: ["Berkshire", "Buckinghamshire", "Channel Islands", "East Sussex", "Hampshire", "Isle of Wight", "Kent", "Oxfordshire", "Surrey", "West Sussex"]
   },
-  "South West Region" => {
+  "South West" => {
     code: "SW",
     description: "Swim England South West Region",
-    counties: ["Bristol", "Cornwall", "Devon", "Dorset", "Gloucestershire", "Somerset", "Wiltshire"]
+    counties: ["Cornwall", "Devon", "Dorset", "Gloucestershire", "Somerset", "Wiltshire"]
   },
-  "West Midlands Region" => {
+  "West Midlands" => {
     code: "WMID",
     description: "Swim England West Midlands Region",
-    counties: ["Herefordshire", "Shropshire", "Staffordshire", "Warwickshire", "West Midlands", "Worcestershire"]
-  },
-  "Yorkshire Region" => {
-    code: "YORK",
-    description: "Swim England Yorkshire Region",
-    counties: ["East Riding of Yorkshire", "North Yorkshire", "South Yorkshire", "West Yorkshire"]
+    counties: ["Shropshire", "Staffordshire", "Warwickshire", "Worcestershire"]
   }
 }
 

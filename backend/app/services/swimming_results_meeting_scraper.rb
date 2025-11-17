@@ -1,8 +1,8 @@
 require "nokogiri"
 require "httpx"
 
-class StreamingResultsMeetingScraper
-  BASE_URL = "https://www.streamingresults.org" # Update this with the actual URL
+class SwimmingResultsMeetingScraper
+  BASE_URL = "https://www.swimmingresults.org"
 
   class ScraperError < StandardError; end
 
@@ -38,23 +38,20 @@ class StreamingResultsMeetingScraper
     meetings
   end
 
-  # Scrape meetings for a specific date
-  # @param date [Date] The date to scrape
+  # Scrape all upcoming meetings from licensed_meets page
+  # @param date [Date] The date to scrape (unused, kept for API compatibility)
   # @return [Array<LiveMeeting>] Array of meetings
   def scrape_meetings_for_date(date)
-    # TODO: Update this URL with the actual endpoint from streamingresults.org
-    # The URL should include date parameters
-    url = build_date_url(date)
+    url = "#{BASE_URL}/licensed_meets/"
 
     response = @session.get(url)
 
     unless response.status == 200
-      raise ScraperError, "Failed to fetch data for #{date}: HTTP #{response.status}"
+      raise ScraperError, "Failed to fetch data: HTTP #{response.status}"
     end
 
     doc = Nokogiri::HTML(response.body)
 
-    # TODO: Update these selectors based on the actual HTML structure
     parse_meetings_from_html(doc, date)
   rescue HTTPX::Error => e
     raise ScraperError, "Network error: #{e.message}"
@@ -81,12 +78,11 @@ class StreamingResultsMeetingScraper
   def parse_meetings_from_html(doc, date)
     meetings = []
 
-    # TODO: Update these selectors based on the actual HTML structure
-    # This is a placeholder - you need to inspect the HTML to find the right selectors
-    meeting_rows = doc.css("table tr.meeting-row") # Placeholder selector
+    # Get all table rows, skip the header row
+    meeting_rows = doc.css("table tr")[1..-1]
 
     meeting_rows.each do |row|
-      meeting_data = extract_meeting_data(row, date)
+      meeting_data = extract_meeting_data(row)
       next unless meeting_data
 
       meeting = create_or_update_meeting(meeting_data)
@@ -96,26 +92,49 @@ class StreamingResultsMeetingScraper
     meetings
   end
 
-  def extract_meeting_data(row, date)
-    # TODO: Update these selectors based on actual HTML structure
-    # This is a placeholder implementation
-
+  def extract_meeting_data(row)
     cells = row.css("td")
-    return nil if cells.empty?
+    return nil if cells.empty? || cells.count < 4
 
     begin
+      # Cell 0: Date (e.g., "18thNov 2025  ")
+      date_text = cells[0].text.strip
+      start_date = parse_date(date_text)
+      return nil unless start_date
+
+      # Cell 1: Name with link and meet number
+      name_cell = cells[1]
+      name = name_cell.text.strip
+      link = name_cell.css("a").first
+      meet_number = extract_meet_number(name, link)
+
+      # Check if meeting already exists - skip parsing details if it does
+      existing = if meet_number.present?
+        LiveMeeting.exists?(meet_number: meet_number)
+      else
+        LiveMeeting.exists?(name: name, start_date: start_date)
+      end
+
+      if existing
+        Rails.logger.debug("Skipping existing meeting: #{name}")
+        return nil
+      end
+
+      # Cell 2: Country (usually just an image, can skip)
+
+      # Cell 3: Details (e.g., "North East RegionShort CourseLevel 4Club")
+      details_text = cells[3].text.strip
+      details = parse_details(details_text)
+
       {
-        # Extract data from table cells
-        # Update these indices based on actual table structure
-        meet_number: cells[0]&.text&.strip,      # Meeting number/ID
-        name: cells[1]&.text&.strip,              # Event name
-        region_name: cells[2]&.text&.strip,       # Region
-        city: cells[3]&.text&.strip,              # City/Town
-        venue: cells[4]&.text&.strip,             # Venue
-        course_type: parse_course_type(cells[5]&.text&.strip), # Course type (25m/50m)
-        license_level: parse_license_level(cells[6]&.text&.strip), # License level
-        start_date: date,
-        external_url: extract_url(row)
+        meet_number: meet_number,
+        name: name,
+        region_name: details[:region],
+        course_type: details[:course_type],
+        license_level: details[:license_level],
+        event_type: details[:event_type],
+        start_date: start_date,
+        external_url: extract_url(link)
       }
     rescue => e
       Rails.logger.warn("Failed to extract meeting data: #{e.message}")
@@ -123,9 +142,7 @@ class StreamingResultsMeetingScraper
     end
   end
 
-  def extract_url(row)
-    # Try to find a link in the row
-    link = row.css("a").first
+  def extract_url(link)
     return nil unless link
 
     href = link["href"]
@@ -141,25 +158,63 @@ class StreamingResultsMeetingScraper
     end
   end
 
-  def parse_course_type(text)
-    return nil unless text
-
-    case text.upcase
-    when /25M?/, /SHORT/, /SC/
-      "25"
-    when /50M?/, /LONG/, /LC/
-      "50"
-    else
-      nil
-    end
+  def parse_date(date_text)
+    # Parse "18thNov 2025" format
+    # Remove ordinal suffixes (st, nd, rd, th)
+    cleaned = date_text.gsub(/(\d+)(st|nd|rd|th)/, '\1')
+    Date.parse(cleaned)
+  rescue ArgumentError => e
+    Rails.logger.warn("Failed to parse date '#{date_text}': #{e.message}")
+    nil
   end
 
-  def parse_license_level(text)
-    return nil unless text
+  def extract_meet_number(name, link)
+    # Try to extract from link first (meet.php?meet=85856)
+    if link && link["href"] =~ /meet=(\d+)/
+      return $1
+    end
 
-    # Extract numeric license level
-    match = text.match(/(\d+)/)
-    match ? match[1].to_i : nil
+    # Try to extract from name (e.g., "Darlington ASC Club Gala 4 2025 - 4NE252206")
+    if name =~ /-\s*(\w+)$/
+      return $1.strip
+    end
+
+    nil
+  end
+
+  def parse_details(text)
+    # Parse "North East RegionShort CourseLevel 4Club" or similar
+    region = nil
+    course_type = nil
+    license_level = nil
+    event_type = nil
+
+    # Extract region (matches our seeded regions)
+    if text =~ /(East Midlands|East|London|North East|North West|South East|South West|West Midlands)\s*Region/i
+      region = $1
+    end
+
+    # Extract course type
+    if text =~ /(Short Course|Long Course)/i
+      course_type = $1 =~ /Short/i ? "25" : "50"
+    end
+
+    # Extract license level
+    if text =~ /Level\s*(\d+)/i
+      license_level = $1.to_i
+    end
+
+    # Extract event type (Club, Club Champs, etc.)
+    if text =~ /(Club Champs|Club|County|Regional|National)/i
+      event_type = $1
+    end
+
+    {
+      region: region,
+      course_type: course_type,
+      license_level: license_level,
+      event_type: event_type
+    }
   end
 
   def create_or_update_meeting(data)
@@ -171,18 +226,9 @@ class StreamingResultsMeetingScraper
     # Find county by name within region
     county = find_or_create_county(data[:county_name], region) if data[:county_name].present? && region
 
-    # Find or create meeting by meet_number or name + date
-    meeting = if data[:meet_number].present?
-      LiveMeeting.find_or_initialize_by(meet_number: data[:meet_number])
-    else
-      LiveMeeting.find_or_initialize_by(
-        name: data[:name],
-        start_date: data[:start_date]
-      )
-    end
-
-    # Update attributes
-    meeting.assign_attributes(
+    # Create new meeting (we already checked it doesn't exist in extract_meeting_data)
+    meeting = LiveMeeting.new(
+      meet_number: data[:meet_number],
       name: data[:name],
       region: region,
       county: county,
@@ -195,7 +241,7 @@ class StreamingResultsMeetingScraper
     )
 
     if meeting.save
-      Rails.logger.info("Saved meeting: #{meeting.name} on #{meeting.start_date}")
+      Rails.logger.info("Created meeting: #{meeting.name} on #{meeting.start_date}")
       meeting
     else
       Rails.logger.error("Failed to save meeting: #{meeting.errors.full_messages.join(', ')}")

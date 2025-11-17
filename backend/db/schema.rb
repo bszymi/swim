@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_25_202333) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_13_100002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,37 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_25_202333) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "counties", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "region_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["region_id", "name"], name: "index_counties_on_region_id_and_name", unique: true
+    t.index ["region_id"], name: "index_counties_on_region_id"
+  end
+
+  create_table "live_meetings", force: :cascade do |t|
+    t.string "city"
+    t.bigint "county_id"
+    t.string "course_type", null: false
+    t.datetime "created_at", null: false
+    t.date "end_date"
+    t.string "external_url"
+    t.integer "license_level"
+    t.string "meet_number"
+    t.string "name", null: false
+    t.text "notes"
+    t.bigint "region_id"
+    t.date "start_date", null: false
+    t.datetime "updated_at", null: false
+    t.string "venue"
+    t.index ["county_id"], name: "index_live_meetings_on_county_id"
+    t.index ["meet_number"], name: "index_live_meetings_on_meet_number"
+    t.index ["region_id"], name: "index_live_meetings_on_region_id"
+    t.index ["start_date", "region_id"], name: "index_live_meetings_on_start_date_and_region_id"
+    t.index ["start_date"], name: "index_live_meetings_on_start_date"
   end
 
   create_table "meet_rules", force: :cascade do |t|
@@ -128,6 +159,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_25_202333) do
     t.index ["swimmer_id"], name: "index_performances_on_swimmer_id"
   end
 
+  create_table "regions", force: :cascade do |t|
+    t.string "code", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_regions_on_code", unique: true
+    t.index ["name"], name: "index_regions_on_name", unique: true
+  end
+
   create_table "swimmers", force: :cascade do |t|
     t.string "club"
     t.datetime "created_at", null: false
@@ -169,6 +210,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_25_202333) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "counties", "regions"
+  add_foreign_key "live_meetings", "counties"
+  add_foreign_key "live_meetings", "regions"
   add_foreign_key "meet_rules", "meet_standard_sets"
   add_foreign_key "meet_standard_rows", "meet_standard_sets"
   add_foreign_key "performances", "swimmers"
