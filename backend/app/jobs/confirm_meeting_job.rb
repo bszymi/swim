@@ -24,9 +24,10 @@ class ConfirmMeetingJob < ApplicationJob
     end
 
     begin
-      # Create the meeting
+      # Create the meeting with license_number
       meeting = Meeting.create!(
         name: parsed_data["meet_name"],
+        license_number: parsed_data["license_number"],
         season: parsed_data["season"],
         pool_required: parsed_data["pool_required"],
         window_start: parsed_data["window_start"],
@@ -34,6 +35,15 @@ class ConfirmMeetingJob < ApplicationJob
         age_rule_type: parsed_data.dig("age_calculation", "method"),
         age_rule_date: parsed_data.dig("age_calculation", "date")
       )
+
+      # Try to match with a LiveMeeting
+      live_meeting = MeetingMatcher.find_live_meeting(meeting)
+      if live_meeting
+        meeting.update!(live_meeting: live_meeting)
+        Rails.logger.info("Matched meeting '#{meeting.name}' to live meeting '#{live_meeting.name}' (#{live_meeting.id})")
+      else
+        Rails.logger.info("No live meeting match found for '#{meeting.name}' with license #{meeting.license_number}")
+      end
 
       # Attach the original PDF document if available
       if parsed_record.pdf_data.present?

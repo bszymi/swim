@@ -1,7 +1,7 @@
 module Api
   module V1
     class LiveMeetingsController < BaseController
-      skip_before_action :authenticate_user!, only: [:index, :show, :today]
+      skip_before_action :authenticate_user!, only: [ :index, :show, :today ]
 
       def index
         meetings = LiveMeeting.upcoming.includes(:region, :county)
@@ -28,12 +28,12 @@ module Api
           meetings = meetings.where(license_level: params[:license_level])
         end
 
-        render json: meetings, include: [:region, :county]
+        render json: meetings, include: [ :region, :county ]
       end
 
       def show
         meeting = LiveMeeting.includes(:region, :county).find(params[:id])
-        render json: meeting, include: [:region, :county]
+        render json: meeting, include: [ :region, :county ]
       end
 
       def today
@@ -41,7 +41,7 @@ module Api
         render json: {
           date: Date.current,
           count: meetings.count,
-          meetings: meetings.as_json(include: [:region, :county])
+          meetings: meetings.as_json(include: [ :region, :county ])
         }
       end
 

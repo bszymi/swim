@@ -1,9 +1,11 @@
 class LiveMeeting < ApplicationRecord
   belongs_to :region, optional: true
   belongs_to :county, optional: true
+  has_many :meetings, dependent: :nullify
 
   validates :name, :start_date, :course_type, presence: true
   validates :course_type, inclusion: { in: %w[25 50] }
+  validates :meet_number, uniqueness: true, allow_nil: true
 
   scope :upcoming, -> { where("start_date >= ?", Date.current).order(:start_date) }
   scope :today, -> { where(start_date: Date.current) }

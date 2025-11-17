@@ -111,6 +111,7 @@ class MeetParser
 
       {
         "meet_name": "string",
+        "license_number": "string or null (e.g., '4NE252206', '3SE251839')",
         "season": "string",
         "pool_required": "LC" or "SC",
         "window_start": "YYYY-MM-DD" or null,
@@ -139,6 +140,7 @@ class MeetParser
       - If age is based on calendar year (e.g., "age as of 31 Dec 2025"), use "calendar_year" method
       - Extract ALL standards from ALL tables in the document
       - Be careful with merged cells and complex table layouts
+      - **IMPORTANT**: Extract the Swim England license number if present (usually in format like "4NE252206" where 4=level, NE=region code, 252206=year+sequence)
 
       Return ONLY the JSON object, nothing else.
     PROMPT

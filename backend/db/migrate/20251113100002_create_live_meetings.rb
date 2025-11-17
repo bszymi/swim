@@ -19,6 +19,6 @@ class CreateLiveMeetings < ActiveRecord::Migration[8.1]
 
     add_index :live_meetings, :start_date
     add_index :live_meetings, :meet_number
-    add_index :live_meetings, [:start_date, :region_id]
+    add_index :live_meetings, [ :start_date, :region_id ]
   end
 end

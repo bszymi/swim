@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_13_100002) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_17_152331) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -103,6 +103,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_13_100002) do
     t.date "age_rule_date"
     t.string "age_rule_type"
     t.datetime "created_at", null: false
+    t.string "license_number"
+    t.bigint "live_meeting_id"
     t.string "name", null: false
     t.text "notes"
     t.string "pool_required"
@@ -113,6 +115,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_13_100002) do
     t.datetime "updated_at", null: false
     t.date "window_end"
     t.date "window_start"
+    t.index ["license_number"], name: "index_meet_standard_sets_on_license_number"
+    t.index ["live_meeting_id"], name: "index_meet_standard_sets_on_live_meeting_id"
   end
 
   create_table "parsed_meet_data", force: :cascade do |t|
@@ -215,6 +219,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_13_100002) do
   add_foreign_key "live_meetings", "regions"
   add_foreign_key "meet_rules", "meet_standard_sets"
   add_foreign_key "meet_standard_rows", "meet_standard_sets"
+  add_foreign_key "meet_standard_sets", "live_meetings"
   add_foreign_key "performances", "swimmers"
   add_foreign_key "user_swimmers", "swimmers"
   add_foreign_key "user_swimmers", "users"

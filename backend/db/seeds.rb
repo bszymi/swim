@@ -15,42 +15,42 @@ regions_data = {
   "East" => {
     code: "EAST",
     description: "Swim England East Region",
-    counties: ["Bedfordshire", "Cambridgeshire", "Essex", "Hertfordshire", "Norfolk", "Suffolk"]
+    counties: [ "Bedfordshire", "Cambridgeshire", "Essex", "Hertfordshire", "Norfolk", "Suffolk" ]
   },
   "East Midlands" => {
     code: "EMID",
     description: "Swim England East Midlands Region",
-    counties: ["Derbyshire", "Leicestershire", "Lincolnshire", "Northamptonshire", "Nottinghamshire"]
+    counties: [ "Derbyshire", "Leicestershire", "Lincolnshire", "Northamptonshire", "Nottinghamshire" ]
   },
   "London" => {
     code: "LOND",
     description: "Swim England London Region",
-    counties: ["Greater London"]
+    counties: [ "Greater London" ]
   },
   "North East" => {
     code: "NE",
     description: "Swim England North East Region",
-    counties: ["County Durham", "North Yorkshire", "North & North East Lincolnshire", "Northumberland", "Teesside", "Yorkshire"]
+    counties: [ "County Durham", "North Yorkshire", "North & North East Lincolnshire", "Northumberland", "Teesside", "Yorkshire" ]
   },
   "North West" => {
     code: "NW",
     description: "Swim England North West Region",
-    counties: ["Cheshire", "Cumbria", "Lancashire"]
+    counties: [ "Cheshire", "Cumbria", "Lancashire" ]
   },
   "South East" => {
     code: "SE",
     description: "Swim England South East Region",
-    counties: ["Berkshire", "Buckinghamshire", "Channel Islands", "East Sussex", "Hampshire", "Isle of Wight", "Kent", "Oxfordshire", "Surrey", "West Sussex"]
+    counties: [ "Berkshire", "Buckinghamshire", "Channel Islands", "East Sussex", "Hampshire", "Isle of Wight", "Kent", "Oxfordshire", "Surrey", "West Sussex" ]
   },
   "South West" => {
     code: "SW",
     description: "Swim England South West Region",
-    counties: ["Cornwall", "Devon", "Dorset", "Gloucestershire", "Somerset", "Wiltshire"]
+    counties: [ "Cornwall", "Devon", "Dorset", "Gloucestershire", "Somerset", "Wiltshire" ]
   },
   "West Midlands" => {
     code: "WMID",
     description: "Swim England West Midlands Region",
-    counties: ["Shropshire", "Staffordshire", "Warwickshire", "Worcestershire"]
+    counties: [ "Shropshire", "Staffordshire", "Warwickshire", "Worcestershire" ]
   }
 }
 

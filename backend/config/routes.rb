@@ -42,7 +42,7 @@ Rails.application.routes.draw do
       end
 
       # Live Meetings (upcoming swimming events)
-      resources :live_meetings, only: [:index, :show] do
+      resources :live_meetings, only: [ :index, :show ] do
         collection do
           get "today"
           post "scrape"
@@ -51,7 +51,7 @@ Rails.application.routes.draw do
       end
 
       # Regions and Counties
-      resources :regions, only: [:index, :show] do
+      resources :regions, only: [ :index, :show ] do
         member do
           get "counties"
         end
