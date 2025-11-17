@@ -19,6 +19,8 @@ class User < ApplicationRecord
   end
 
   def password_reset_valid?
-    reset_password_sent_at && reset_password_sent_at > 2.hours.ago
+    return false unless reset_password_sent_at
+
+    reset_password_sent_at > 2.hours.ago
   end
 end
