@@ -476,15 +476,16 @@ export const SwimmerDetailPage: React.FC = () => {
                         dataKey="time"
                         stroke="#3b82f6"
                         strokeWidth={3}
-                        dot={(props: { cx: number; cy: number; payload: { isPB?: boolean } }) => {
+                        dot={(props: { cx?: number; cy?: number; payload?: { isPB?: boolean } }) => {
                           const { cx, cy, payload } = props;
+                          if (cx === undefined || cy === undefined) return null;
                           return (
                             <circle
                               cx={cx}
                               cy={cy}
-                              r={payload.isPB ? 8 : 5}
-                              fill={payload.isPB ? '#eab308' : '#3b82f6'}
-                              stroke={payload.isPB ? '#ca8a04' : '#2563eb'}
+                              r={payload?.isPB ? 8 : 5}
+                              fill={payload?.isPB ? '#eab308' : '#3b82f6'}
+                              stroke={payload?.isPB ? '#ca8a04' : '#2563eb'}
                               strokeWidth={2}
                             />
                           );
