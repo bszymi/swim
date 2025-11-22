@@ -30,7 +30,7 @@ RSpec.describe MeetingErrorReport, type: :model do
       older_report = create(:meeting_error_report, created_at: 2.days.ago)
       newer_report = create(:meeting_error_report, created_at: 1.day.ago)
 
-      recent = MeetingErrorReport.where(id: [older_report.id, newer_report.id]).recent
+      recent = MeetingErrorReport.where(id: [ older_report.id, newer_report.id ]).recent
       expect(recent.first).to eq(newer_report)
       expect(recent.last).to eq(older_report)
     end
