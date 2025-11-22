@@ -1,7 +1,8 @@
 module Api
   module V1
     class MeetingsController < BaseController
-      before_action :set_meeting, only: [ :show, :destroy, :swimmer_time_history, :download_pdf, :compare ]
+      before_action :set_meeting, only: [ :show, :update, :destroy, :swimmer_time_history, :download_pdf, :compare ]
+      before_action :require_admin!, only: [ :update ]
 
       def index
         meetings = Meeting.all.order(created_at: :desc)
@@ -296,6 +297,17 @@ module Api
                   disposition: "attachment"
       end
 
+      def update
+        if @meeting.update(meeting_params)
+          render json: {
+            meeting: @meeting,
+            message: "Meeting updated successfully"
+          }
+        else
+          render json: { errors: @meeting.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
       def destroy
         name = @meeting.name
         @meeting.destroy
@@ -304,8 +316,33 @@ module Api
 
       private
 
+      def require_admin!
+        return if performed?
+
+        unless current_user&.admin?
+          render json: { error: "Unauthorized. Admin access required." }, status: :forbidden
+        end
+      end
+
       def set_meeting
         @meeting = Meeting.find(params[:id])
+      end
+
+      def meeting_params
+        params.require(:meeting).permit(
+          :name,
+          :season,
+          :pool_required,
+          :window_start,
+          :window_end,
+          :age_rule_type,
+          :age_rule_date,
+          :promoter,
+          :region,
+          :notes,
+          :source_pdf_url,
+          :license_number
+        )
       end
     end
   end

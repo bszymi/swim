@@ -83,10 +83,50 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "#admin?" do
-    it "returns false by default" do
-      user = User.create!(email: "test@example.com", password: "password123")
-      expect(user.admin?).to be false
+  describe "role functionality" do
+    describe "#admin?" do
+      it "returns false for regular users" do
+        user = create(:user, role: "user")
+        expect(user.admin?).to be false
+      end
+
+      it "returns true for admin users" do
+        user = create(:user, role: "admin")
+        expect(user.admin?).to be true
+      end
+    end
+
+    describe "#user?" do
+      it "returns true for regular users" do
+        user = create(:user, role: "user")
+        expect(user.user?).to be true
+      end
+
+      it "returns false for admin users" do
+        user = create(:user, role: "admin")
+        expect(user.user?).to be false
+      end
+    end
+
+    describe "role validation" do
+      it "accepts valid roles" do
+        user = build(:user, role: "user")
+        expect(user).to be_valid
+
+        user.role = "admin"
+        expect(user).to be_valid
+      end
+
+      it "rejects invalid roles" do
+        user = build(:user, role: "invalid")
+        expect(user).not_to be_valid
+        expect(user.errors[:role]).to include("is not included in the list")
+      end
+
+      it "has user as default role" do
+        user = User.create!(email: "test@example.com", password: "password123")
+        expect(user.role).to eq("user")
+      end
     end
   end
 end
