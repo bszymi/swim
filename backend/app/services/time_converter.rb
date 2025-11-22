@@ -1,79 +1,89 @@
 class TimeConverter
-  # Conversion factors based on distance and stroke
-  # These are approximate conversions based on turn times (SC is typically faster due to more turns)
-  # Format: { distance_m => { stroke => percentage_difference } }
-  # Negative means SC is faster (typical case)
+  # British Swimming Equivalent Time Algorithm
+  # Written by Graham Sykes
+  # Source: https://leman.net/wp/2024/11/08/converting-swim-times-between-short-and-long-course-in-excel-using-the-british-swimming-equivalent-time-algorithm/
+  #
+  # Turn factors for converting between 25m (short course) and 50m (long course)
+  # These factors account for the advantage gained from turns and push-offs in shorter pools
 
-  CONVERSION_FACTORS = {
+  TURN_FACTORS = {
     50 => {
-      "FREE" => 0.0,      # No conversion for 50m (only 1 turn)
-      "BACK" => 0.0,
-      "BREAST" => 0.0,
-      "FLY" => 0.0,
-      "IM" => 0.0
+      "FREE" => 42.245,
+      "BACK" => 40.5,
+      "BREAST" => 63.616,
+      "FLY" => 38.269
     },
     100 => {
-      "FREE" => -0.015,    # SC ~1.5% faster
-      "BACK" => -0.020,    # SC ~2% faster
-      "BREAST" => -0.025,  # SC ~2.5% faster
-      "FLY" => -0.020,     # SC ~2% faster
-      "IM" => -0.020
+      "FREE" => 42.245,
+      "BACK" => 40.5,
+      "BREAST" => 63.616,
+      "FLY" => 38.269
     },
     200 => {
-      "FREE" => -0.025,    # SC ~2.5% faster
-      "BACK" => -0.030,    # SC ~3% faster
-      "BREAST" => -0.035,  # SC ~3.5% faster
-      "FLY" => -0.030,     # SC ~3% faster
-      "IM" => -0.030
+      "FREE" => 43.786,
+      "BACK" => 41.98,
+      "BREAST" => 66.598,
+      "FLY" => 39.76,
+      "IM" => 49.7
     },
     400 => {
-      "FREE" => -0.030,    # SC ~3% faster
-      "BACK" => -0.035,
-      "BREAST" => -0.040,
-      "FLY" => -0.035,
-      "IM" => -0.035
+      "FREE" => 44.233,
+      "IM" => 55.366
     },
     800 => {
-      "FREE" => -0.035,    # SC ~3.5% faster
-      "BACK" => -0.040,
-      "BREAST" => -0.045,
-      "FLY" => -0.040,
-      "IM" => -0.040
+      "FREE" => 45.525
     },
     1500 => {
-      "FREE" => -0.040,    # SC ~4% faster
-      "BACK" => -0.045,
-      "BREAST" => -0.050,
-      "FLY" => -0.045,
-      "IM" => -0.045
+      "FREE" => 46.221
     }
   }.freeze
 
-  # Convert LC time to SC time
-  # @param lc_time_seconds [Float] Time in long course
+  # Convert LC time to SC time (50m -> 25m)
+  # Formula: SC = LC - (TurnFactor / LC) × (Distance/100)² × 2
+  # @param lc_time_seconds [Float] Time in long course (50m pool)
   # @param distance_m [Integer] Distance in meters
-  # @param stroke [String] Stroke type
-  # @return [Float] Estimated SC time
+  # @param stroke [String] Stroke type (FREE, BACK, BREAST, FLY, IM)
+  # @return [Float] Estimated SC time in seconds
   def self.lc_to_sc(lc_time_seconds, distance_m, stroke)
     return lc_time_seconds if lc_time_seconds.nil?
+    return lc_time_seconds if lc_time_seconds <= 0
 
-    factor = get_conversion_factor(distance_m, stroke)
-    # Negative factor means SC is faster, so we multiply by (1 + factor)
-    # For example, -0.015 means SC is 1.5% faster, so SC time = LC time * 0.985
-    lc_time_seconds * (1.0 + factor)
+    turn_factor = get_turn_factor(distance_m, stroke)
+    return lc_time_seconds if turn_factor.nil? # No conversion available
+
+    num_turn_factor = ((distance_m / 100.0) ** 2) * 2
+
+    sc_time = lc_time_seconds - ((turn_factor / lc_time_seconds) * num_turn_factor)
+
+    # Ensure result is positive
+    sc_time > 0 ? sc_time : lc_time_seconds
   end
 
-  # Convert SC time to LC time
-  # @param sc_time_seconds [Float] Time in short course
+  # Convert SC time to LC time (25m -> 50m)
+  # Formula: LC = (SC + √(SC² + 4 × TurnFactor × NumTurnFactor)) / 2
+  # @param sc_time_seconds [Float] Time in short course (25m pool)
   # @param distance_m [Integer] Distance in meters
-  # @param stroke [String] Stroke type
-  # @return [Float] Estimated LC time
+  # @param stroke [String] Stroke type (FREE, BACK, BREAST, FLY, IM)
+  # @return [Float] Estimated LC time in seconds
   def self.sc_to_lc(sc_time_seconds, distance_m, stroke)
     return sc_time_seconds if sc_time_seconds.nil?
+    return sc_time_seconds if sc_time_seconds <= 0
 
-    factor = get_conversion_factor(distance_m, stroke)
-    # Reverse the conversion
-    sc_time_seconds / (1.0 + factor)
+    turn_factor = get_turn_factor(distance_m, stroke)
+    return sc_time_seconds if turn_factor.nil? # No conversion available
+
+    num_turn_factor = ((distance_m / 100.0) ** 2) * 2
+
+    # Calculate using quadratic formula solution
+    discriminant = (sc_time_seconds ** 2) + (4 * turn_factor * num_turn_factor)
+
+    # Ensure discriminant is positive
+    return sc_time_seconds if discriminant < 0
+
+    lc_time = (sc_time_seconds + Math.sqrt(discriminant)) / 2.0
+
+    # Ensure result is positive and greater than SC time (LC should always be slower)
+    (lc_time > 0 && lc_time >= sc_time_seconds) ? lc_time : sc_time_seconds
   end
 
   # Get the appropriate time for a given course type
@@ -95,11 +105,14 @@ class TimeConverter
 
   private
 
-  def self.get_conversion_factor(distance_m, stroke)
-    # Get factor for this distance/stroke combination
-    distance_factors = CONVERSION_FACTORS[distance_m]
-    return 0.0 unless distance_factors
+  # Get the turn factor for a specific distance and stroke
+  # @param distance_m [Integer] Distance in meters
+  # @param stroke [String] Stroke type
+  # @return [Float, nil] Turn factor or nil if not available
+  def self.get_turn_factor(distance_m, stroke)
+    distance_factors = TURN_FACTORS[distance_m]
+    return nil unless distance_factors
 
-    distance_factors[stroke] || 0.0
+    distance_factors[stroke]
   end
 end
