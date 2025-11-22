@@ -18,6 +18,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     loadUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadUsers = async () => {
@@ -26,8 +27,9 @@ export default function AdminUsersPage() {
       const response = await api.get("/admin/users");
       setUsers(response.data);
       setError(null);
-    } catch (err: any) {
-      if (err.response?.status === 403) {
+    } catch (err) {
+      const error = err as { response?: { status?: number } };
+      if (error.response?.status === 403) {
         setError("Unauthorized. Admin access required.");
         setTimeout(() => navigate("/dashboard"), 2000);
       } else {
@@ -61,9 +63,10 @@ export default function AdminUsersPage() {
     try {
       await api.post(`/admin/users/${userId}/demote`);
       await loadUsers();
-    } catch (err: any) {
-      if (err.response?.data?.error) {
-        alert(err.response.data.error);
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      if (error.response?.data?.error) {
+        alert(error.response.data.error);
       } else {
         alert("Failed to demote user");
       }
@@ -79,9 +82,10 @@ export default function AdminUsersPage() {
     try {
       await api.delete(`/admin/users/${userId}`);
       await loadUsers();
-    } catch (err: any) {
-      if (err.response?.data?.error) {
-        alert(err.response.data.error);
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      if (error.response?.data?.error) {
+        alert(error.response.data.error);
       } else {
         alert("Failed to delete user");
       }

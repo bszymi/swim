@@ -2,14 +2,12 @@ import { useState } from 'react';
 import { Button } from '../common/Button';
 
 interface ReportErrorModalProps {
-  meetingId: number;
   meetingName: string;
   onClose: () => void;
   onSubmit: (description: string) => Promise<void>;
 }
 
 export const ReportErrorModal: React.FC<ReportErrorModalProps> = ({
-  meetingId,
   meetingName,
   onClose,
   onSubmit,
@@ -37,8 +35,9 @@ export const ReportErrorModal: React.FC<ReportErrorModalProps> = ({
     try {
       await onSubmit(description);
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.errors?.join(', ') || 'Failed to submit error report');
+    } catch (err) {
+      const error = err as { response?: { data?: { errors?: string[] } } };
+      setError(error.response?.data?.errors?.join(', ') || 'Failed to submit error report');
     } finally {
       setIsSubmitting(false);
     }

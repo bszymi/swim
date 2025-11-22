@@ -18,6 +18,7 @@ export default function ErrorReportsPage() {
     }
 
     loadReports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, user, navigate]);
 
   const loadReports = async () => {
@@ -27,8 +28,9 @@ export default function ErrorReportsPage() {
       const data = await errorReportsService.getAll(status);
       setReports(data);
       setError(null);
-    } catch (err: any) {
-      if (err.response?.status === 403) {
+    } catch (err) {
+      const error = err as { response?: { status?: number } };
+      if (error.response?.status === 403) {
         setError('Unauthorized. Admin access required.');
         setTimeout(() => navigate('/dashboard'), 2000);
       } else {

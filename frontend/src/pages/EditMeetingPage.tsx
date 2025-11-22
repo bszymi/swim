@@ -35,6 +35,7 @@ export default function EditMeetingPage() {
     }
 
     loadMeeting();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user, navigate]);
 
   const loadMeeting = async () => {
@@ -43,7 +44,7 @@ export default function EditMeetingPage() {
       const response = await api.get(`/meetings/${id}`);
       setMeeting(response.data.meeting);
       setError(null);
-    } catch (err: any) {
+    } catch (err) {
       setError("Failed to load meeting");
       console.error("Error loading meeting:", err);
     } finally {
@@ -59,8 +60,9 @@ export default function EditMeetingPage() {
       setSaving(true);
       await api.put(`/meetings/${id}`, { meeting });
       navigate(`/meetings/${id}`);
-    } catch (err: any) {
-      setError(err.response?.data?.errors?.join(", ") || "Failed to update meeting");
+    } catch (err) {
+      const error = err as { response?: { data?: { errors?: string[] } } };
+      setError(error.response?.data?.errors?.join(", ") || "Failed to update meeting");
       console.error("Error updating meeting:", err);
     } finally {
       setSaving(false);
