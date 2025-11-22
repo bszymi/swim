@@ -77,7 +77,7 @@ namespace :swimming_results do
   end
 
   desc "Import performances for a specific swimmer by ID"
-  task :import_swimmer, [:swimmer_id] => :environment do |t, args|
+  task :import_swimmer, [ :swimmer_id ] => :environment do |t, args|
     unless args[:swimmer_id]
       puts "ERROR: Please provide a swimmer ID"
       puts "Usage: rake swimming_results:import_swimmer[123]"
