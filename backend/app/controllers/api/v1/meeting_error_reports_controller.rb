@@ -43,8 +43,6 @@ module Api
       private
 
       def require_admin!
-        return if performed?
-
         unless current_user&.admin?
           render json: { error: "Unauthorized. Admin access required." }, status: :forbidden
         end
