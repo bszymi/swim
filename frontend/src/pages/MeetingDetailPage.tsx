@@ -138,7 +138,6 @@ export const MeetingDetailPage: React.FC = () => {
 
       {showReportModal && (
         <ReportErrorModal
-          meetingId={meetingId}
           meetingName={meeting.name}
           onClose={() => setShowReportModal(false)}
           onSubmit={handleReportError}
