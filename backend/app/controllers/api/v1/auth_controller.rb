@@ -54,6 +54,8 @@ module Api
         {
           id: user.id,
           email: user.email,
+          role: user.role,
+          is_admin: user.admin?,
           created_at: user.created_at
         }
       end

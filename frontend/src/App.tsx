@@ -16,6 +16,9 @@ import { NewMeetingPage } from './pages/NewMeetingPage';
 import { MeetingReviewPage } from './pages/MeetingReviewPage';
 import { MeetingDetailPage } from './pages/MeetingDetailPage';
 import { SwimmerDetailPage } from './pages/SwimmerDetailPage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import EditMeetingPage from './pages/EditMeetingPage';
+import ErrorReportsPage from './pages/ErrorReportsPage';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -51,7 +54,10 @@ function App() {
                 <Route path="/meetings" element={<MeetingsPage />} />
                 <Route path="/meetings/new" element={<NewMeetingPage />} />
                 <Route path="/meetings/:id/review" element={<MeetingReviewPage />} />
+                <Route path="/meetings/:id/edit" element={<EditMeetingPage />} />
                 <Route path="/meetings/:id" element={<MeetingDetailPage />} />
+                <Route path="/admin/users" element={<AdminUsersPage />} />
+                <Route path="/admin/error-reports" element={<ErrorReportsPage />} />
               </Route>
             </Route>
           </Routes>

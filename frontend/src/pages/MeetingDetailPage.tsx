@@ -1,9 +1,13 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Loading } from '../components/common/Loading';
 import { meetingsService } from '../services/meetings.service';
+import { errorReportsService } from '../services/errorReports.service';
+import { useAuth } from '../hooks/useAuth';
+import { ReportErrorModal } from '../components/meetings/ReportErrorModal';
 
 interface EventStandard {
   stroke: string;
@@ -20,12 +24,18 @@ interface GenderData {
 export const MeetingDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const meetingId = parseInt(id || '0');
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['meeting', meetingId],
     queryFn: () => meetingsService.getById(meetingId),
   });
+
+  const handleReportError = async (description: string) => {
+    await errorReportsService.create(meetingId, description);
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -56,9 +66,21 @@ export const MeetingDetailPage: React.FC = () => {
             {meeting.season} • {meeting.pool_required === 'LC' ? 'Long Course (50m)' : 'Short Course (25m)'}
           </p>
         </div>
-        <Button variant="secondary" onClick={() => navigate('/meetings')}>
-          Back to Meetings
-        </Button>
+        <div className="flex gap-2">
+          {!user?.is_admin && (
+            <Button variant="secondary" onClick={() => setShowReportModal(true)}>
+              Report Data Error
+            </Button>
+          )}
+          {user?.is_admin && (
+            <Button onClick={() => navigate(`/meetings/${id}/edit`)}>
+              Edit Meeting
+            </Button>
+          )}
+          <Button variant="secondary" onClick={() => navigate('/meetings')}>
+            Back to Meetings
+          </Button>
+        </div>
       </div>
 
       {meeting.window_start && meeting.window_end && (
@@ -113,6 +135,14 @@ export const MeetingDetailPage: React.FC = () => {
           </div>
         ))}
       </Card>
+
+      {showReportModal && (
+        <ReportErrorModal
+          meetingName={meeting.name}
+          onClose={() => setShowReportModal(false)}
+          onSubmit={handleReportError}
+        />
+      )}
     </div>
   );
 };

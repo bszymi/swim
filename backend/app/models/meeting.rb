@@ -3,6 +3,7 @@ class Meeting < ApplicationRecord
 
   has_many :meeting_standards, dependent: :destroy, foreign_key: "meet_standard_set_id"
   has_one :meet_rule, dependent: :destroy, foreign_key: "meet_standard_set_id"
+  has_many :error_reports, class_name: "MeetingErrorReport", foreign_key: "meet_standard_set_id", dependent: :destroy
   has_one_attached :pdf_document
   belongs_to :live_meeting, optional: true
 

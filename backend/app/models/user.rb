@@ -6,12 +6,23 @@ class User < ApplicationRecord
 
   has_many :user_swimmers, dependent: :destroy
   has_many :swimmers, through: :user_swimmers
+  has_many :error_reports, class_name: "MeetingErrorReport", dependent: :destroy
 
+  # Role constants
+  ROLES = %w[user admin].freeze
+
+  validates :role, inclusion: { in: ROLES }
+
+  # Role checking methods
   def admin?
-    # TODO: Add admin field to users table if needed
-    false
+    role == "admin"
   end
 
+  def user?
+    role == "user"
+  end
+
+  # Password reset functionality
   def generate_password_reset_token!
     self.reset_password_token = SecureRandom.urlsafe_base64
     self.reset_password_sent_at = Time.current

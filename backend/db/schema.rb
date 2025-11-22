@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_17_152331) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_22_121617) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -119,6 +119,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_17_152331) do
     t.index ["live_meeting_id"], name: "index_meet_standard_sets_on_live_meeting_id"
   end
 
+  create_table "meeting_error_reports", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description", null: false
+    t.bigint "meet_standard_set_id", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["meet_standard_set_id"], name: "index_meeting_error_reports_on_meet_standard_set_id"
+    t.index ["status"], name: "index_meeting_error_reports_on_status"
+    t.index ["user_id"], name: "index_meeting_error_reports_on_user_id"
+  end
+
   create_table "parsed_meet_data", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.jsonb "data"
@@ -205,11 +217,13 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_17_152331) do
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
+    t.string "role", default: "user", null: false
     t.string "uid"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["role"], name: "index_users_on_role"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -220,6 +234,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_17_152331) do
   add_foreign_key "meet_rules", "meet_standard_sets"
   add_foreign_key "meet_standard_rows", "meet_standard_sets"
   add_foreign_key "meet_standard_sets", "live_meetings"
+  add_foreign_key "meeting_error_reports", "meet_standard_sets"
+  add_foreign_key "meeting_error_reports", "users"
   add_foreign_key "performances", "swimmers"
   add_foreign_key "user_swimmers", "swimmers"
   add_foreign_key "user_swimmers", "users"

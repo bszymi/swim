@@ -41,6 +41,9 @@ Rails.application.routes.draw do
         end
       end
 
+      # Meeting Error Reports
+      resources :meeting_error_reports, only: [ :index, :create, :update ]
+
       # Live Meetings (upcoming swimming events)
       resources :live_meetings, only: [ :index, :show ] do
         collection do
@@ -59,6 +62,16 @@ Rails.application.routes.draw do
 
       # Public qualification checker
       post "check_qualification", to: "public#check_qualification"
+
+      # Admin routes
+      namespace :admin do
+        resources :users, only: [ :index, :show, :update, :destroy ] do
+          member do
+            post "promote"
+            post "demote"
+          end
+        end
+      end
     end
   end
 end

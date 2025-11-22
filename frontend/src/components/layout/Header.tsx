@@ -7,6 +7,7 @@ export const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -33,6 +34,37 @@ export const Header: React.FC = () => {
             <Link to="/meetings" className="text-gray-700 hover:text-blue-600 transition-colors">
               Meetings
             </Link>
+            {user?.is_admin && (
+              <div className="relative">
+                <button
+                  onClick={() => setAdminMenuOpen(!adminMenuOpen)}
+                  className="text-purple-600 hover:text-purple-700 font-semibold transition-colors flex items-center gap-1"
+                >
+                  Admin
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {adminMenuOpen && (
+                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                    <Link
+                      to="/admin/users"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                      onClick={() => setAdminMenuOpen(false)}
+                    >
+                      Users
+                    </Link>
+                    <Link
+                      to="/admin/error-reports"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                      onClick={() => setAdminMenuOpen(false)}
+                    >
+                      Error Reports
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </nav>
 
           {/* User Menu */}
@@ -80,6 +112,25 @@ export const Header: React.FC = () => {
             >
               Meetings
             </Link>
+            {user?.is_admin && (
+              <>
+                <div className="px-3 py-2 text-sm font-semibold text-purple-600">Admin</div>
+                <Link
+                  to="/admin/users"
+                  className="block px-6 py-2 rounded-md text-gray-700 hover:bg-purple-50"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Users
+                </Link>
+                <Link
+                  to="/admin/error-reports"
+                  className="block px-6 py-2 rounded-md text-gray-700 hover:bg-purple-50"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Error Reports
+                </Link>
+              </>
+            )}
             <div className="border-t border-gray-200 pt-2">
               <div className="px-3 py-2 text-sm text-gray-600">{user?.email}</div>
               <button
