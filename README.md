@@ -172,6 +172,12 @@ Content-Type: application/json
 | `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:5173` |
 | `ANTHROPIC_API_KEY` | Claude API key for PDF parsing | - |
 
+## Developer Documentation
+
+For detailed development guides, see the `docs/` folder:
+
+- **[Getting Started](docs/GETTING_STARTED.md)** - Development workflow, useful commands, styling guide, and troubleshooting
+
 ## Contributing
 
 1. Fork the repository
